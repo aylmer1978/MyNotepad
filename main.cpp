@@ -19,15 +19,24 @@ int main() {
       if (cursor < contenido.length()) {
         cursor++;
       }
-      std::cout << "El cursor está en la posición: " << cursor << std::endl;
+
     } else if (comando == 'i') {
       if (cursor > 0) {
         cursor--;
         
       }
-      std::cout << "El cursor está en la posición: " << cursor << std::endl;
+
+    } else if (comando == 'b') {
+      if (cursor >0) {
+        contenido.erase(cursor-1, 1);
+        cursor--;
+        }
     } else if (comando == 'q') {
       break;
+    } else {
+      contenido.insert(cursor, 1, comando);
+      cursor++;
+
     }
 
     std::cout << contenido.substr(0, cursor) << "|" << contenido.substr(cursor, contenido.length()-cursor) << std::endl;
