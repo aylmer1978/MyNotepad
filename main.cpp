@@ -10,7 +10,8 @@ int main() {
 
   std::cout << "Escribe 'd' o 'i'" << std::endl;
   
-
+  std::cout << contenido.substr(0, cursor) << "|" << contenido.substr(cursor, contenido.length()-cursor) << std::endl;
+  
   while (comando != 'q') {
 
     std::cin >> comando;
@@ -31,8 +32,15 @@ int main() {
         contenido.erase(cursor-1, 1);
         cursor--;
         }
+
     } else if (comando == 'q') {
       break;
+    
+    } else if (comando == 'x') {
+      if (cursor < contenido.length()) {
+        contenido.erase(cursor, 1);
+      } 
+
     } else {
       contenido.insert(cursor, 1, comando);
       cursor++;
