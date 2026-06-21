@@ -14,6 +14,7 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
   }
 }
 
+// Main function donde introduzco letras y muevo el cursor con las teclas d/i/w/s
 int main() {
 
   std::vector<std::string> lineas = {
@@ -22,7 +23,6 @@ int main() {
   int fila = 0;
   int columna = 0;
 
-  int cursor = 0;
   char comando = ' ';
 
   std::cout << "Escribe 'd/i' (der/izq), 'w/s' (up/down) o 'q' (quit)"
@@ -58,6 +58,10 @@ int main() {
           columna = lineas.at(fila).length();
         }
       }
+    } else {
+      lineas.at(fila).insert(columna, 1, comando);
+      columna++;
+
     }
 
     show_frases(lineas, fila, columna);
