@@ -1,56 +1,66 @@
 #include <iostream>
 #include <string>
+#include <vector>
+
+void show_frases(const std::vector<std::string>& lineas, int fila, int columna) {
+  for (size_t i = 0; i < lineas.size(); i++) {
+    if (i == fila) {
+      std::cout << lineas.at(fila).substr(0, columna) << "|" << lineas.at(fila).substr(columna) << std::endl;
+    } else {
+      std::cout << lineas.at(i) << std::endl;
+    }
+  }
+}
+
 
 int main() {
 
-  std::string contenido = "Hello, world!";
-  std::string nuevo_valor;
+  std::vector<std::string> lineas = {"Esta es la primera linea.", "Corto", "Esta es la tercera linea."};
+
+  int fila = 1;
+  int columna = 2;
+
+  
   int cursor = 0;
   char comando = ' ';
-
+  
   std::cout << "Escribe 'd' o 'i'" << std::endl;
-
-  std::cout << contenido.substr(0, cursor) << "|"
-            << contenido.substr(cursor, contenido.length() - cursor)
-            << std::endl;
+  
+  show_frases(lineas, fila, columna);
 
   while (comando != 'q') {
 
     std::cin >> comando;
 
     if (comando == 'd') {
-      if (cursor < contenido.length()) {
-        cursor++;
-      }
+      if (columna < lineas.at(fila).length()) {
+        columna++;
+      } 
 
     } else if (comando == 'i') {
-      if (cursor > 0) {
-        cursor--;
+      if (columna > 0) {
+        columna--;
       }
-
-    } else if (comando == 'b') {
-      if (cursor > 0) {
-        contenido.erase(cursor - 1, 1);
-        cursor--;
+    } else if (comando == 'w') {
+      if (fila > 0) {
+        fila--;
+        if (columna > lineas.at(fila).length()) {
+          columna = lineas.at(fila).length();
+        }
       }
-
-    } else if (comando == 'q') {
-      break;
-
-    } else if (comando == 'x') {
-      if (cursor < contenido.length()) {
-        contenido.erase(cursor, 1);
+      
+    } else if (comando == 's') {
+      if (fila < lineas.size() - 1) {
+        fila++;
+        if (columna > lineas.at(fila).length()) {
+          columna = lineas.at(fila).length();
+        }
       }
-
-    } else {
-      contenido.insert(cursor, 1, comando);
-      cursor++;
     }
 
-    std::cout << contenido.substr(0, cursor) << "|"
-              << contenido.substr(cursor, contenido.length() - cursor)
-              << std::endl;
+    show_frases(lineas, fila, columna);
+    
   }
-
+  
   return 0;
 }
