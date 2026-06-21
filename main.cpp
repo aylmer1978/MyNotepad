@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+// Funcion con la que muestro todos los textos en pantalla con el cursor.
 void show_frases(const std::vector<std::string> &lineas, int fila,
                  int columna) {
   for (size_t i = 0; i < lineas.size(); i++) {
@@ -14,7 +15,8 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
   }
 }
 
-// Main function donde introduzco letras y muevo el cursor con las teclas d/i/w/s
+// Main function donde introduzco letras y muevo el cursor con las teclas
+// d/i/w/s
 int main() {
 
   std::vector<std::string> lineas = {
@@ -61,11 +63,11 @@ int main() {
 
     } else if (comando == 'x') {
       if (columna > 0) {
-        lineas.at(fila).erase(columna-1, 1);
+        lineas.at(fila).erase(columna - 1, 1);
         columna--;
       } else {
         if (fila > 0) {
-          size_t longitud = lineas.at(fila-1).length();
+          size_t longitud = lineas.at(fila - 1).length();
           lineas.at(fila - 1) += lineas.at(fila);
           lineas.erase(lineas.begin() + fila);
           fila--;
@@ -73,27 +75,26 @@ int main() {
         }
       }
 
-    } else if (comando == 'v'){
+    } else if (comando == 'v') {
       if (columna == lineas.at(fila).length()) {
         if (fila < lineas.size() - 1) {
-          lineas.at(fila) += lineas.at(fila+1);
-          lineas.erase(lineas.begin() +fila+1);
+          lineas.at(fila) += lineas.at(fila + 1);
+          lineas.erase(lineas.begin() + fila + 1);
         }
       } else {
         lineas.at(fila).erase(columna, 1);
       }
 
     } else if (comando == 'n') {
-        std::string nueva_linea = lineas.at(fila).substr(0, columna);
-        lineas.insert(lineas.begin() + fila + 1, lineas.at(fila).substr(columna));
-        lineas.at(fila) = nueva_linea;
-        fila++;
-        columna = 0;
+      std::string nueva_linea = lineas.at(fila).substr(0, columna);
+      lineas.insert(lineas.begin() + fila + 1, lineas.at(fila).substr(columna));
+      lineas.at(fila) = nueva_linea;
+      fila++;
+      columna = 0;
 
     } else {
       lineas.at(fila).insert(columna, 1, comando);
       columna++;
-
     }
 
     show_frases(lineas, fila, columna);
