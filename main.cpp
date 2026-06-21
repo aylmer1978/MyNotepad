@@ -18,7 +18,7 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
 
 void save_file(const std::vector<std::string> &frases) {
     std::string name_file;
-    std::cout << "Escribe el nombre del archivo: " << std::endl;
+    std::cout << "Escribe el nombre del archivo a guardar: ";
     std::cin >> name_file;
     name_file.append(".txt");
     
@@ -32,12 +32,39 @@ void save_file(const std::vector<std::string> &frases) {
     archivo.close();
 }
 
+std::vector<std::string> load_file() {
+    std::string name_file;
+    std::cout << "Escribe el txt a cargar (blanco para texto en blanco): ";
+    std::cin >> name_file;
+    
+    std::vector<std::string> lineas_cargadas;
+
+    if (name_file == "blanco") {
+      lineas_cargadas = {""};
+
+    } else {
+
+      name_file = name_file + ".txt";
+
+      std::ifstream archivo(name_file);
+
+      std::string linea_leida;
+      while (std::getline(archivo, linea_leida)) {
+          lineas_cargadas.push_back(linea_leida);
+      }
+
+    }
+    
+    return lineas_cargadas;
+}
+
 // Main function donde introduzco letras y muevo el cursor con las teclas
 // d/i/w/s
 int main() {
 
-  std::vector<std::string> lineas = {
-      "Esta es la primera linea.", "Texto corto.", "Esta es la tercera linea."};
+  std::vector<std::string> lineas;
+  
+  lineas = load_file();
 
   int fila = 0;
   int columna = 0;
