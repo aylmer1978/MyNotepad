@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 // Funcion con la que muestro todos los textos en pantalla con el cursor.
 void show_frases(const std::vector<std::string> &lineas, int fila,
@@ -13,6 +14,22 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
       std::cout << lineas.at(i) << std::endl;
     }
   }
+}
+
+void save_file(const std::vector<std::string> &frases) {
+    std::string name_file;
+    std::cout << "Escribe el nombre del archivo: " << std::endl;
+    std::cin >> name_file;
+    name_file.append(".txt");
+    
+    std::ofstream archivo(name_file);
+
+    for (size_t i=0;i<frases.size();i++) {
+        std::cout << frases.at(i) << std::endl;
+        archivo << frases.at(i) << std::endl;
+    }
+
+    archivo.close();
 }
 
 // Main function donde introduzco letras y muevo el cursor con las teclas
@@ -91,6 +108,9 @@ int main() {
       lineas.at(fila) = nueva_linea;
       fila++;
       columna = 0;
+
+    } else if (comando == 'g') {
+      save_file(lineas);  
 
     } else {
       lineas.at(fila).insert(columna, 1, comando);
