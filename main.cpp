@@ -58,6 +58,38 @@ int main() {
           columna = lineas.at(fila).length();
         }
       }
+
+    } else if (comando == 'x') {
+      if (columna > 0) {
+        lineas.at(fila).erase(columna-1, 1);
+        columna--;
+      } else {
+        if (fila > 0) {
+          size_t longitud = lineas.at(fila-1).length();
+          lineas.at(fila - 1) += lineas.at(fila);
+          lineas.erase(lineas.begin() + fila);
+          fila--;
+          columna = longitud;
+        }
+      }
+
+    } else if (comando == 'v'){
+      if (columna == lineas.at(fila).length()) {
+        if (fila < lineas.size() - 1) {
+          lineas.at(fila) += lineas.at(fila+1);
+          lineas.erase(lineas.begin() +fila+1);
+        }
+      } else {
+        lineas.at(fila).erase(columna, 1);
+      }
+
+    } else if (comando == 'n') {
+        std::string nueva_linea = lineas.at(fila).substr(0, columna);
+        lineas.insert(lineas.begin() + fila + 1, lineas.at(fila).substr(columna));
+        lineas.at(fila) = nueva_linea;
+        fila++;
+        columna = 0;
+
     } else {
       lineas.at(fila).insert(columna, 1, comando);
       columna++;
