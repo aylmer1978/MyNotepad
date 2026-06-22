@@ -3,7 +3,6 @@
 
 namespace fs = std::filesystem;
 
-
 int main () {
 
     fs::path my_path = fs::current_path();
@@ -12,7 +11,6 @@ int main () {
     for (auto& entry : fs::directory_iterator{my_path}) {
         std::cout << entry << std::endl;
     }
-
 
     return 0;
 }
