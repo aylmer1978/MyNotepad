@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include "read_files.h"
 
 // Funcion con la que muestro todos los textos en pantalla con el cursor.
 void show_frases(const std::vector<std::string> &lineas, int fila,
@@ -34,19 +35,14 @@ void save_file(const std::vector<std::string> &frases) {
 }
 
 // Funcion para cargar el documento al inicio
-std::vector<std::string> load_file() {
-    std::string name_file;
-    std::cout << "Escribe el txt a cargar (blanco para texto en blanco): ";
-    std::cin >> name_file;
+std::vector<std::string> load_file(std::string name_file) {
 
     std::vector<std::string> lineas_cargadas;
 
-    if (name_file == "blanco") {
+    if (name_file == "Archivo en blanco.") {
       lineas_cargadas = {""};
 
     } else {
-
-      name_file = name_file + ".txt";
 
       std::ifstream archivo(name_file);
 
@@ -63,9 +59,13 @@ std::vector<std::string> load_file() {
 // Main function donde introduzco letras y muevo el cursor con las teclas 'd/i/w/s'
 int main() {
 
+  // esto es un resto de la prueba de carga, solo provisional
+  std::string eleccion = return_load_txt(files_in_directory());
+  std::cout << "Has elegido: " << eleccion << std::endl;
+
   std::vector<std::string> lineas;
 
-  lineas = load_file();
+  lineas = load_file(eleccion);
 
   int fila = 0;
   int columna = 0;

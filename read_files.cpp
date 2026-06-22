@@ -17,6 +17,8 @@
          }
      }
 
+     archivos_txt.insert(archivos_txt.begin(), "Archivo en blanco.");
+
      return archivos_txt;
  }
 
@@ -32,31 +34,12 @@ std::string return_load_txt(std::vector<std::string> archivos) {
     std::cout << "Elige el archivo a cargar: ";
     std::cin >> load_txt;
 
-    while (std::cin.fail()) {
-        std::cin.clear();                                              // resetea el "semáforo"
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // descarta lo que quedó atascado
-        std::cout << "No es un número, elige de nuevo de 0 a " << archivos.size() << ": ";
-        std::cin >> load_txt;                                          // ahora sí, intento limpio
+    while (std::cin.fail() || load_txt >= archivos.size()) {
+        std::cin.clear();                                         
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+        std::cout << "Erróneo, elige de nuevo de 0 a " << archivos.size() << ": ";
+        std::cin >> load_txt;  
     }
 
-    while (load_txt >= archivos.size()) {
-        std::cout << "No en rango. Elige el archivo a cargarde 0 a " << archivos.size() << ": ";
-        std::cin >> load_txt;
-        while (std::cin.fail()) {
-            std::cin.clear();                                         
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
-            std::cout << "No es un número, elige de nuevo de 0 a " << archivos.size() << ": ";
-            std::cin >> load_txt;                                   
-        }
-    }
     return archivos.at(load_txt);
-}
-
-
-int main () {
-
-    std::string eleccion = return_load_txt(files_in_directory());
-    std::cout << "Has elegido: " << eleccion << std::endl;
-
-    return 0;
 }
