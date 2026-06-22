@@ -16,12 +16,13 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
   }
 }
 
+// Funcion para guardar el documento
 void save_file(const std::vector<std::string> &frases) {
     std::string name_file;
     std::cout << "Escribe el nombre del archivo a guardar: ";
     std::cin >> name_file;
     name_file.append(".txt");
-    
+
     std::ofstream archivo(name_file);
 
     for (size_t i=0;i<frases.size();i++) {
@@ -32,11 +33,12 @@ void save_file(const std::vector<std::string> &frases) {
     archivo.close();
 }
 
+// Funcion para cargar el documento al inicio
 std::vector<std::string> load_file() {
     std::string name_file;
     std::cout << "Escribe el txt a cargar (blanco para texto en blanco): ";
     std::cin >> name_file;
-    
+
     std::vector<std::string> lineas_cargadas;
 
     if (name_file == "blanco") {
@@ -54,16 +56,15 @@ std::vector<std::string> load_file() {
       }
 
     }
-    
+
     return lineas_cargadas;
 }
 
-// Main function donde introduzco letras y muevo el cursor con las teclas
-// d/i/w/s
+// Main function donde introduzco letras y muevo el cursor con las teclas 'd/i/w/s'
 int main() {
 
   std::vector<std::string> lineas;
-  
+
   lineas = load_file();
 
   int fila = 0;
@@ -137,7 +138,7 @@ int main() {
       columna = 0;
 
     } else if (comando == 'g') {
-      save_file(lineas);  
+      save_file(lineas);
 
     } else {
       lineas.at(fila).insert(columna, 1, comando);
