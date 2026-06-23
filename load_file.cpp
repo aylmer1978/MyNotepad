@@ -17,6 +17,5 @@ int main () {
         std::cout << lineas_cargadas.at(i) << std::endl;
     }
 
-
     return 0;
 }
