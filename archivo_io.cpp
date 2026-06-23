@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 // Esta funcion devuelve los .txt en un array
 std::vector<std::string> files_in_directory() {
@@ -44,4 +45,43 @@ std::string return_load_txt(std::vector<std::string> archivos) {
   }
 
   return archivos.at(load_txt);
+}
+
+// Funcion para guardar el documento
+void save_file(const std::vector<std::string> &frases) {
+    std::string name_file;
+    std::cout << "Escribe el nombre del archivo a guardar: ";
+    std::cin >> name_file;
+    name_file.append(".txt");
+
+    std::ofstream archivo(name_file);
+
+    for (size_t i=0;i<frases.size();i++) {
+        std::cout << frases.at(i) << std::endl;
+        archivo << frases.at(i) << std::endl;
+    }
+
+    archivo.close();
+}
+
+// Funcion para cargar el documento al inicio
+std::vector<std::string> load_file(std::string name_file) {
+
+    std::vector<std::string> lineas_cargadas;
+
+    if (name_file == "Archivo en blanco.") {
+      lineas_cargadas = {""};
+
+    } else {
+
+      std::ifstream archivo(name_file);
+
+      std::string linea_leida;
+      while (std::getline(archivo, linea_leida)) {
+          lineas_cargadas.push_back(linea_leida);
+      }
+
+    }
+
+    return lineas_cargadas;
 }
