@@ -152,6 +152,15 @@ int main() {
       keypad(stdscr, TRUE);
       noecho();
 
+    } else if (comando == CTRL('l')) {
+      endwin();
+      std::string nueva_eleccion = return_load_txt(files_in_directory());
+      lineas = load_file(nueva_eleccion);
+      initscr();
+      raw();
+      keypad(stdscr, TRUE);
+      noecho();
+
     } else {
       lineas.at(fila).insert(columna, 1, comando);
       columna++;
