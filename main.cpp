@@ -2,19 +2,23 @@
 #include <string>
 #include <vector>
 #include "archivo_io.h"
+#include "ncurses.h"
+
+#define CTRL(x) ((x) & 0x1f)
 
 // Funcion con la que muestro todos los textos en pantalla con el cursor.
 void show_frases(const std::vector<std::string> &lineas, int fila,
                  int columna) {
+  clear();
   for (size_t i = 0; i < lineas.size(); i++) {
-    if (i == fila) {
-      std::cout << lineas.at(fila).substr(0, columna) << "|"
-                << lineas.at(fila).substr(columna) << std::endl;
-    } else {
-      std::cout << lineas.at(i) << std::endl;
-    }
+    mvprintw(i, 0, "%s", lineas.at(i).c_str());
   }
+
+  move(fila,columna);
+  refresh();
 }
+
+// Estas tres funcionmes sirven para comprobar el tamaño de bytes de un caracter 
 
 // Función con avance del cursor si es UTF-8
 int bytes_del_caracter (const std::string &texto, size_t posicion) {
@@ -46,43 +50,44 @@ bool es_continuacion (const std::string &texto, size_t posicion) {
   }
 }
 
-
 // Main function donde introduzco letras y muevo el cursor con las teclas 'd/i/w/s'
 int main() {
-
+  
   // esto es un resto de la prueba de carga, solo provisional
   std::string eleccion = return_load_txt(files_in_directory());
   std::cout << "Has elegido: " << eleccion << std::endl;
-
+  
   std::vector<std::string> lineas;
-
+  
   lineas = load_file(eleccion);
-
+  
   int fila = 0;
   int columna = 0;
+  
+  int comando = ' ';
 
-  char comando = ' ';
-
-  std::cout << "Escribe 'd/i' (der/izq), 'w/s' (up/down) o 'q' (quit)"
-            << std::endl;
-
+  initscr();
+  raw();
+  keypad(stdscr, TRUE);
+  noecho();
+  
   show_frases(lineas, fila, columna);
 
-  while (comando != 'q') {
+  while (comando != CTRL('q')) {
 
-    std::cin >> comando;
+    comando = getch();
 
-    if (comando == 'd') {
+    if (comando == KEY_RIGHT) {
       if (columna < lineas.at(fila).length()) {
         columna += bytes_del_caracter(lineas.at(fila), columna);
       }
 
-    } else if (comando == 'i') {
+    } else if (comando == KEY_LEFT) {
       if (columna > 0) {
         columna -= bytes_caracter_izquierda(lineas.at(fila), columna);
       }
 
-    } else if (comando == 'w') {
+    } else if (comando == KEY_UP) {
       if (fila > 0) {
         fila--;
         if (columna > lineas.at(fila).length()) {
@@ -93,7 +98,7 @@ int main() {
           }
       }
 
-    } else if (comando == 's') {
+    } else if (comando == KEY_DOWN) {
       if (fila < lineas.size() - 1) {
         fila++;
         if (columna > lineas.at(fila).length()) {
@@ -104,7 +109,7 @@ int main() {
           }
       }
 
-    } else if (comando == 'x') {
+    } else if (comando == KEY_BACKSPACE) {
 
         if (columna > 0) {
           int posiciones = bytes_caracter_izquierda(lineas.at(fila), columna);
@@ -121,7 +126,7 @@ int main() {
           }
         }
 
-    } else if (comando == 'v') {
+    } else if (comando == KEY_DC) {
 
       if (columna == lineas.at(fila).length()) {
         if (fila < lineas.size() - 1) {
@@ -132,15 +137,29 @@ int main() {
         lineas.at(fila).erase(columna, bytes_del_caracter(lineas.at(fila), columna));
       }
 
-    } else if (comando == 'n') {
+    } else if (comando == '\n') {
       std::string nueva_linea = lineas.at(fila).substr(0, columna);
       lineas.insert(lineas.begin() + fila + 1, lineas.at(fila).substr(columna));
       lineas.at(fila) = nueva_linea;
       fila++;
       columna = 0;
 
-    } else if (comando == 'g') {
+    } else if (comando == CTRL('s')) {
+      endwin();
       save_file(lineas);
+      initscr();
+      raw();
+      keypad(stdscr, TRUE);
+      noecho();
+
+    } else if (comando == CTRL('l')) {
+      endwin();
+      std::string nueva_eleccion = return_load_txt(files_in_directory());
+      lineas = load_file(nueva_eleccion);
+      initscr();
+      raw();
+      keypad(stdscr, TRUE);
+      noecho();
 
     } else {
       lineas.at(fila).insert(columna, 1, comando);
@@ -149,6 +168,8 @@ int main() {
 
     show_frases(lineas, fila, columna);
   }
+
+  endwin();
 
   return 0;
 }
