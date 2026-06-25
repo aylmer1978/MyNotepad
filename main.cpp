@@ -162,7 +162,7 @@ int main() {
 
     } else if (comando == CTRL('s')) {
       endwin();
-      save_file(lineas);
+      nombre_archivo_actual = save_file(lineas);
       initscr();
       raw();
       keypad(stdscr, TRUE);

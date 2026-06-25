@@ -48,7 +48,7 @@ std::string return_load_txt(std::vector<std::string> archivos) {
 }
 
 // Funcion para guardar el documento
-void save_file(const std::vector<std::string> &frases) {
+std::string save_file(const std::vector<std::string> &frases) {
     std::string name_file;
     std::cout << "Escribe el nombre del archivo a guardar: ";
     std::cin >> name_file;
@@ -62,7 +62,9 @@ void save_file(const std::vector<std::string> &frases) {
     }
 
     archivo.close();
-}
+    
+    return name_file;
+  }
 
 // Funcion para cargar el documento al inicio
 std::vector<std::string> load_file(std::string name_file) {
