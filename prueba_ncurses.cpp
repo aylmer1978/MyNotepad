@@ -1,29 +1,32 @@
+#include <ncurses.h>
 #include <iostream>
 #include <string>
-#include "ncurses.h"
+
+#define CTRL(x) ((x) & 0x1f)
 
 int main() {
     initscr();
+    raw();
+    keypad(stdscr, TRUE);
+    noecho();
 
-    size_t filas, columnas;
+    int tecla;
 
-    getmaxyx(stdscr, filas, columnas);
+    do {
+        tecla = getch();
+        mvprintw(0, 0, "Has pulsado: %c (codigo %d)          ", tecla, tecla);
 
-    std::string name_program = "Write Something Nice";
-    
-    std::string relleno((columnas - name_program.length())/2, ' ');
-    std::string relleno_2(columnas - name_program.length() - relleno.length(), ' ');
-    std::string fila_superior = relleno + name_program + relleno_2;
-    
-    attron(A_REVERSE);
-    mvprintw(0,0,"%s",fila_superior.c_str());
-    attroff(A_REVERSE);
+        unsigned char byte = tecla;
+        if ((byte & 0xE0) == 0xC0) {
+            mvprintw(1,0,"%c Es un caracter especial.", tecla);
+            refresh();
+        } else {
+            mvprintw(1,0,"%c Es un caracter normal.", tecla);
+            refresh();
+        }
 
-    mvprintw(2,0,"Esta es una linea normal");
+    } while (tecla != CTRL('q'));
 
-    refresh();
-    getch();
     endwin();
-
     return 0;
 }

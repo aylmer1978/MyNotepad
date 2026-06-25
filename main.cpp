@@ -21,9 +21,11 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
   std::string relleno((columnas - texto_barra.length())/2, ' ');
   std::string relleno_2(columnas - texto_barra.length() - relleno.length(), ' ');
   std::string fila_superior = relleno + texto_barra + relleno_2;
+  std::string fila_inferior = std::string(columnas, ' ');
 
   attron(A_REVERSE);
   mvprintw(0, 0, "%s", fila_superior.c_str());
+  mvprintw(filas-1,0,"%s", fila_inferior.c_str());
   attroff(A_REVERSE);
 
   for (size_t i = 0; i < lineas.size(); i++) {
