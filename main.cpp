@@ -2,7 +2,10 @@
 #include <string>
 #include <vector>
 #include "archivo_io.h"
-#include "ncurses.h"
+#define _XOPEN_SOURCE_EXTENDED
+#include <ncurses.h>
+#include <cwchar>
+#include <locale.h>
 
 #define CTRL(x) ((x) & 0x1f)
 
@@ -82,8 +85,10 @@ int main() {
   int fila = 0;
   int columna = 0;
   
-  int comando = ' ';
+  wint_t comando = ' ';
+  int tipo;
 
+  setlocale(LC_ALL, "");
   initscr();
   raw();
   keypad(stdscr, TRUE);
@@ -93,99 +98,105 @@ int main() {
 
   while (comando != CTRL('q')) {
 
-    comando = getch();
+    tipo = get_wch(&comando);
 
-    if (comando == KEY_RIGHT) {
-      if (columna < lineas.at(fila).length()) {
-        columna += bytes_del_caracter(lineas.at(fila), columna);
-      }
+    if (tipo == KEY_CODE_YES) {
 
-    } else if (comando == KEY_LEFT) {
-      if (columna > 0) {
-        columna -= bytes_caracter_izquierda(lineas.at(fila), columna);
-      }
-
-    } else if (comando == KEY_UP) {
-      if (fila > 0) {
-        fila--;
-        if (columna > lineas.at(fila).length()) {
-          columna = lineas.at(fila).length();
+      if (comando == KEY_RIGHT) {
+        if (columna < lineas.at(fila).length()) {
+          columna += bytes_del_caracter(lineas.at(fila), columna);
         }
-          if (columna < lineas.at(fila).length() && es_continuacion(lineas.at(fila), columna)) {
-            columna--;  
-          }
-      }
 
-    } else if (comando == KEY_DOWN) {
-      if (fila < lineas.size() - 1) {
-        fila++;
-        if (columna > lineas.at(fila).length()) {
-          columna = lineas.at(fila).length();
-        }
-          if (columna < lineas.at(fila).length() && es_continuacion(lineas.at(fila), columna)) {
-            columna--;  
-          }
-      }
-
-    } else if (comando == KEY_BACKSPACE) {
-
+      } else if (comando == KEY_LEFT) {
         if (columna > 0) {
-          int posiciones = bytes_caracter_izquierda(lineas.at(fila), columna);
-          lineas.at(fila).erase(columna - posiciones, posiciones);
-          columna -= posiciones;
+          columna -= bytes_caracter_izquierda(lineas.at(fila), columna);
+        }
 
-        } else {
-          if (fila > 0) {
-            size_t longitud = lineas.at(fila - 1).length();
-            lineas.at(fila - 1) += lineas.at(fila);
-            lineas.erase(lineas.begin() + fila);
-            fila--;
-            columna = longitud;
+      } else if (comando == KEY_UP) {
+        if (fila > 0) {
+          fila--;
+          if (columna > lineas.at(fila).length()) {
+            columna = lineas.at(fila).length();
           }
+            if (columna < lineas.at(fila).length() && es_continuacion(lineas.at(fila), columna)) {
+              columna--;  
+            }
         }
 
-    } else if (comando == KEY_DC) {
-
-      if (columna == lineas.at(fila).length()) {
+      } else if (comando == KEY_DOWN) {
         if (fila < lineas.size() - 1) {
-          lineas.at(fila) += lineas.at(fila + 1);
-          lineas.erase(lineas.begin() + fila + 1);
+          fila++;
+          if (columna > lineas.at(fila).length()) {
+            columna = lineas.at(fila).length();
+          }
+            if (columna < lineas.at(fila).length() && es_continuacion(lineas.at(fila), columna)) {
+              columna--;  
+            }
         }
-      } else {
-        lineas.at(fila).erase(columna, bytes_del_caracter(lineas.at(fila), columna));
-      }
 
-    } else if (comando == '\n') {
-      std::string nueva_linea = lineas.at(fila).substr(0, columna);
-      lineas.insert(lineas.begin() + fila + 1, lineas.at(fila).substr(columna));
-      lineas.at(fila) = nueva_linea;
-      fila++;
-      columna = 0;
+      } else if (comando == KEY_BACKSPACE) {
 
-    } else if (comando == CTRL('s')) {
-      endwin();
-      nombre_archivo_actual = save_file(lineas);
-      initscr();
-      raw();
-      keypad(stdscr, TRUE);
-      noecho();
+          if (columna > 0) {
+            int posiciones = bytes_caracter_izquierda(lineas.at(fila), columna);
+            lineas.at(fila).erase(columna - posiciones, posiciones);
+            columna -= posiciones;
 
-    } else if (comando == CTRL('l')) {
-      endwin();
-      std::string nueva_eleccion = return_load_txt(files_in_directory());
-      lineas = load_file(nueva_eleccion);
-      nombre_archivo_actual = nueva_eleccion;
-      fila = 0;
-      columna = 0;
-      initscr();
-      raw();
-      keypad(stdscr, TRUE);
-      noecho();
+          } else {
+            if (fila > 0) {
+              size_t longitud = lineas.at(fila - 1).length();
+              lineas.at(fila - 1) += lineas.at(fila);
+              lineas.erase(lineas.begin() + fila);
+              fila--;
+              columna = longitud;
+            }
+          }
+
+      } else if (comando == KEY_DC) {
+
+        if (columna == lineas.at(fila).length()) {
+          if (fila < lineas.size() - 1) {
+            lineas.at(fila) += lineas.at(fila + 1);
+            lineas.erase(lineas.begin() + fila + 1);
+          }
+        } else {
+          lineas.at(fila).erase(columna, bytes_del_caracter(lineas.at(fila), columna));
+        }
+
+      } 
 
     } else {
-      lineas.at(fila).insert(columna, 1, comando);
-      columna++;
-    }
+      if (comando == '\n') {
+        std::string nueva_linea = lineas.at(fila).substr(0, columna);
+        lineas.insert(lineas.begin() + fila + 1, lineas.at(fila).substr(columna));
+        lineas.at(fila) = nueva_linea;
+        fila++;
+        columna = 0;
+
+      } else if (comando == CTRL('s')) {
+        endwin();
+        nombre_archivo_actual = save_file(lineas);
+        initscr();
+        raw();
+        keypad(stdscr, TRUE);
+        noecho();
+
+      } else if (comando == CTRL('l')) {
+        endwin();
+        std::string nueva_eleccion = return_load_txt(files_in_directory());
+        lineas = load_file(nueva_eleccion);
+        nombre_archivo_actual = nueva_eleccion;
+        fila = 0;
+        columna = 0;
+        initscr();
+        raw();
+        keypad(stdscr, TRUE);
+        noecho();
+
+      } else {
+        lineas.at(fila).insert(columna, 1, comando);
+        columna++;
+      }
+    } 
 
     show_frases(lineas, fila, columna, nombre_archivo_actual);
   }
