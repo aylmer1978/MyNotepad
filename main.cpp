@@ -8,13 +8,29 @@
 
 // Funcion con la que muestro todos los textos en pantalla con el cursor.
 void show_frases(const std::vector<std::string> &lineas, int fila,
-                 int columna) {
+                 int columna, std::string nombre_archivo) {
   clear();
+  
+  std::string name_program = "Write Something Nice";
+  std::string texto_barra = name_program + " - " + nombre_archivo;
+
+  size_t filas, columnas;
+
+  getmaxyx(stdscr, filas, columnas);
+
+  std::string relleno((columnas - texto_barra.length())/2, ' ');
+  std::string relleno_2(columnas - texto_barra.length() - relleno.length(), ' ');
+  std::string fila_superior = relleno + texto_barra + relleno_2;
+
+  attron(A_REVERSE);
+  mvprintw(0, 0, "%s", fila_superior.c_str());
+  attroff(A_REVERSE);
+
   for (size_t i = 0; i < lineas.size(); i++) {
-    mvprintw(i, 0, "%s", lineas.at(i).c_str());
+    mvprintw(i+2, 0, "%s", lineas.at(i).c_str());
   }
 
-  move(fila,columna);
+  move(fila+2,columna);
   refresh();
 }
 
@@ -54,12 +70,12 @@ bool es_continuacion (const std::string &texto, size_t posicion) {
 int main() {
   
   // esto es un resto de la prueba de carga, solo provisional
-  std::string eleccion = return_load_txt(files_in_directory());
-  std::cout << "Has elegido: " << eleccion << std::endl;
+  std::string nombre_archivo_actual = return_load_txt(files_in_directory());
+  std::cout << "Has elegido: " << nombre_archivo_actual << std::endl;
   
   std::vector<std::string> lineas;
   
-  lineas = load_file(eleccion);
+  lineas = load_file(nombre_archivo_actual);
   
   int fila = 0;
   int columna = 0;
@@ -71,7 +87,7 @@ int main() {
   keypad(stdscr, TRUE);
   noecho();
   
-  show_frases(lineas, fila, columna);
+  show_frases(lineas, fila, columna, nombre_archivo_actual);
 
   while (comando != CTRL('q')) {
 
@@ -156,6 +172,9 @@ int main() {
       endwin();
       std::string nueva_eleccion = return_load_txt(files_in_directory());
       lineas = load_file(nueva_eleccion);
+      nombre_archivo_actual = nueva_eleccion;
+      fila = 0;
+      columna = 0;
       initscr();
       raw();
       keypad(stdscr, TRUE);
@@ -166,7 +185,7 @@ int main() {
       columna++;
     }
 
-    show_frases(lineas, fila, columna);
+    show_frases(lineas, fila, columna, nombre_archivo_actual);
   }
 
   endwin();
