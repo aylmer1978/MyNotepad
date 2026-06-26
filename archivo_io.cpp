@@ -57,7 +57,6 @@ std::string save_file(const std::vector<std::string> &frases) {
     std::ofstream archivo(name_file);
 
     for (size_t i=0;i<frases.size();i++) {
-        std::cout << frases.at(i) << std::endl;
         archivo << frases.at(i) << std::endl;
     }
 

@@ -1,29 +1,48 @@
-#include <iostream>
+#define _XOPEN_SOURCE_EXTENDED
+#include <ncurses.h>
+#include <cwchar>
+#include <locale.h>
 #include <string>
-#include "ncurses.h"
+
+#define CTRL(x) ((x) & 0x1f)
+
+std::string codificar_utf8(int numero) {
+    unsigned char byte1 = 0xC0 | (numero >> 6);
+    unsigned char byte2 = 0x80 | (numero & 0x3F);
+    
+    std::string resultado;
+    resultado += byte1;
+    resultado += byte2;
+    
+    return resultado;
+}
 
 int main() {
+    setlocale(LC_ALL, "");
     initscr();
+    raw();
+    keypad(stdscr, TRUE);
+    noecho();
 
-    size_t filas, columnas;
+    wint_t tecla;
+    int tipo;
 
-    getmaxyx(stdscr, filas, columnas);
+    do {
+        tipo = get_wch(&tecla);
 
-    std::string name_program = "Write Something Nice";
-    
-    std::string relleno((columnas - name_program.length())/2, ' ');
-    std::string relleno_2(columnas - name_program.length() - relleno.length(), ' ');
-    std::string fila_superior = relleno + name_program + relleno_2;
-    
-    attron(A_REVERSE);
-    mvprintw(0,0,"%s",fila_superior.c_str());
-    attroff(A_REVERSE);
+        if (tipo == KEY_CODE_YES) {
+            if (tecla == KEY_RIGHT) {
+                mvprintw(0, 0, "Flecha derecha detectada!          ");
+            }
+        } else {
+            std::string codificado = codificar_utf8((int)tecla);
+            mvprintw(0, 0, "Codigo: %d - Caracter codificado: %s          ", (int)tecla, codificado.c_str());
+        }
 
-    mvprintw(2,0,"Esta es una linea normal");
+        refresh();
 
-    refresh();
-    getch();
+    } while (tecla != CTRL('q'));
+
     endwin();
-
     return 0;
 }
