@@ -24,6 +24,7 @@ void dibujar_barra_inferior(const std::string &texto) {
     attroff(A_REVERSE);
 }
 
+// Esto pide el nombre al guardar
 std::string pedir_nombre_archivo() {
     std::string nombre;
     wint_t tecla;
@@ -124,20 +125,25 @@ int columna_visual(const std::string &texto, size_t columna_bytes) {
 
 // Funcion con la que muestro todos los textos en pantalla con el cursor.
 void show_frases(const std::vector<std::string> &lineas, int fila,
-                 int columna, std::string nombre_archivo, std::string mensaje_estado) {
+                 int columna, std::string nombre_archivo, std::string mensaje_estado, bool modificado) {
   clear();
   
   std::string name_program = "Write Something Nice";
   std::string texto_barra = name_program + " - " + nombre_archivo;
 
   size_t filas, columnas;
-
+  
+  if (modificado) {
+    texto_barra += " *";
+  }
+  
   getmaxyx(stdscr, filas, columnas);
 
   std::string relleno((columnas - texto_barra.length())/2, ' ');
   std::string relleno_2(columnas - texto_barra.length() - relleno.length(), ' ');
   std::string fila_superior = relleno + texto_barra + relleno_2;
   std::string fila_inferior = std::string(columnas, ' ');
+
 
   attron(A_REVERSE);
   mvprintw(0, 0, "%s", fila_superior.c_str());
@@ -177,7 +183,7 @@ int main() {
   keypad(stdscr, TRUE);
   noecho();
   
-  show_frases(lineas, fila, columna, nombre_archivo_actual,"");
+  show_frases(lineas, fila, columna, nombre_archivo_actual,"", modificado);
 
   while (comando != CTRL('q')) {
 
@@ -311,7 +317,7 @@ int main() {
         }
     } 
 
-    show_frases(lineas, fila, columna, nombre_archivo_actual, frase_final);
+    show_frases(lineas, fila, columna, nombre_archivo_actual, frase_final, modificado);
   }
 
   endwin();
