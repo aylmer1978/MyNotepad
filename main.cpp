@@ -24,6 +24,50 @@ void dibujar_barra_inferior(const std::string &texto) {
     attroff(A_REVERSE);
 }
 
+std::string pedir_nombre_archivo() {
+    std::string nombre;
+    wint_t tecla;
+    int tipo;
+    
+    do {
+        dibujar_barra_inferior("Nombre del archivo a guardar: " + nombre);
+        refresh();
+        
+        tipo = get_wch(&tecla);
+        
+        if (tecla == '\n') {
+          if (!nombre.empty()) {
+              break;
+          } else {
+              dibujar_barra_inferior("El nombre no puede estar vacío. Pulsa cualquier tecla para continuar.");
+              refresh();
+              get_wch(&tecla);
+          }
+        } else if (tecla == KEY_BACKSPACE && !nombre.empty()) {
+            nombre.pop_back();
+        } else if (tipo != KEY_CODE_YES) {
+            nombre += (char)tecla;
+        }
+        
+    } while (true);
+    
+    return nombre;
+}
+
+std::string guardar_documento(const std::vector<std::string> &lineas, std::string nombre_archivo_actual) {
+    std::string nombre_final;
+    
+    if (nombre_archivo_actual == "Archivo en blanco.") {
+        nombre_final = pedir_nombre_archivo();
+        nombre_final += ".txt";
+    } else {
+        nombre_final = nombre_archivo_actual;
+    }
+    
+    save_file(lineas, nombre_final);
+    
+    return nombre_final;
+}
 
 // FUNCIONES PARA EL CHEQUEO DE LOS CARACTERES ESPECIALES
 // Estas funcionmes sirven para comprobar el tamaño de bytes de un caracter, un rollo 
@@ -219,25 +263,20 @@ int main() {
         modificado = true;
 
       } else if (comando == CTRL('s')) {
-        endwin();
-        nombre_archivo_actual = save_file(lineas);
-        initscr();
-        raw();
-        keypad(stdscr, TRUE);
-        noecho();
+        nombre_archivo_actual = guardar_documento(lineas,nombre_archivo_actual);
         modificado = false;
 
       } else if (comando == CTRL('l')) {
         endwin();
         std::string nueva_eleccion = return_load_txt(files_in_directory());
         lineas = load_file(nueva_eleccion);
-        nombre_archivo_actual = nueva_eleccion;
-        fila = 0;
-        columna = 0;
         initscr();
         raw();
         keypad(stdscr, TRUE);
         noecho();
+        nombre_archivo_actual = nueva_eleccion;
+        fila = 0;
+        columna = 0;
         modificado = false;
 
 
@@ -254,12 +293,7 @@ int main() {
             } 
 
             if (respuesta == 's') {
-              endwin();
-              nombre_archivo_actual = save_file(lineas);
-              initscr();
-              raw();
-              keypad(stdscr, TRUE);
-              noecho();
+              nombre_archivo_actual = guardar_documento(lineas,nombre_archivo_actual);
             }
           }
 
