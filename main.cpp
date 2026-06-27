@@ -1,4 +1,4 @@
-#include <iostream>
+//#include <iostream>
 #include <string>
 #include <vector>
 #include "archivo_io.h"
@@ -6,6 +6,7 @@
 #include <ncurses.h>
 #include <cwchar>
 #include <locale.h>
+#include "mensajes.h"
 
 #define CTRL(x) ((x) & 0x1f)
 
@@ -79,7 +80,7 @@ int columna_visual(const std::string &texto, size_t columna_bytes) {
 
 // Funcion con la que muestro todos los textos en pantalla con el cursor.
 void show_frases(const std::vector<std::string> &lineas, int fila,
-                 int columna, std::string nombre_archivo) {
+                 int columna, std::string nombre_archivo, std::string mensaje_estado) {
   clear();
   
   std::string name_program = "Write Something Nice";
@@ -96,7 +97,7 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
 
   attron(A_REVERSE);
   mvprintw(0, 0, "%s", fila_superior.c_str());
-  dibujar_barra_inferior(fila_inferior.c_str());
+  dibujar_barra_inferior(mensaje_estado);
   attroff(A_REVERSE);
 
   for (size_t i = 0; i < lineas.size(); i++) {
@@ -132,9 +133,11 @@ int main() {
   keypad(stdscr, TRUE);
   noecho();
   
-  show_frases(lineas, fila, columna, nombre_archivo_actual);
+  show_frases(lineas, fila, columna, nombre_archivo_actual,"");
 
   while (comando != CTRL('q')) {
+
+    std::string frase_final = "";
 
     tipo = get_wch(&comando);
 
@@ -270,13 +273,11 @@ int main() {
           lineas.at(fila).insert(columna, texto_a_insertar);
           columna += texto_a_insertar.length();
           modificado = true;
-          std::string add_letra = std::to_string((int)comando);
-          std::string prueba_mia = "Has escrito una maravillosa" + add_letra; 
-          dibujar_barra_inferior(prueba_mia);
+          frase_final = mensaje_aleatorio(texto_a_insertar); 
         }
     } 
 
-    show_frases(lineas, fila, columna, nombre_archivo_actual);
+    show_frases(lineas, fila, columna, nombre_archivo_actual, frase_final);
   }
 
   endwin();
