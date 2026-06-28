@@ -13,7 +13,7 @@ std::string mensaje_aleatorio(const std::string &letra) {
         "Sigue escribiendo, va genial.",
         "Contador secreto: alguien escribió " + letra + " y nadie se dio cuenta.",
         "Honestamente, la " + letra + " está sobrevalorada.",
-        "Vaya " + letra + "más bonita te ha quedado",
+        "Vaya " + letra + " más bonita te ha quedado",
         "Creo que la " + letra + " es la letra más bonita del mundo.",
         "Si repites muchas veces la " + letra + " te sale una novela estupenda.",
         " " + letra + " " + letra + " " + letra + " " + letra + " " + 

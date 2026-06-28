@@ -10,6 +10,7 @@
 
 #define CTRL(x) ((x) & 0x1f)
 
+
 // FUNCIONES PARA DIBUJAR LAS BARRAS INFERIOR Y SUPERIOR
 // Barra inferior
 void dibujar_barra_inferior(const std::string &texto) {
@@ -53,6 +54,45 @@ std::string pedir_nombre_archivo() {
     } while (true);
     
     return nombre;
+}
+
+std::string elegir_archivo_ncurses(const std::vector<std::string> &archivos) {
+    clear();
+    
+    for (size_t i = 0; i < archivos.size(); i++) {
+        mvprintw(i, 0, "%zu: %s", i, archivos.at(i).c_str());
+    }
+    
+    std::string entrada;
+    size_t numero;
+    wint_t tecla;
+    int tipo;
+    
+    do {
+        dibujar_barra_inferior("Elige un numero: " + entrada);
+        refresh();
+        
+        tipo = get_wch(&tecla);
+        
+        if (tecla == '\n' && !entrada.empty()) {
+            numero = std::stoul(entrada);
+            if (numero < archivos.size()) {
+                break;
+            } else {
+                dibujar_barra_inferior("Numero fuera de rango. Pulsa cualquier tecla.");
+                refresh();
+                get_wch(&tecla);
+                entrada = "";
+            }
+        } else if (tecla == KEY_BACKSPACE && !entrada.empty()) {
+            entrada.pop_back();
+        } else if (tipo != KEY_CODE_YES && tecla >= '0' && tecla <= '9') {
+            entrada += (char)tecla;
+        }
+        
+    } while (true);
+    
+    return archivos.at(numero);
 }
 
 std::string guardar_documento(const std::vector<std::string> &lineas, std::string nombre_archivo_actual) {
@@ -162,8 +202,8 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
 // Main function donde introduzco letras y muevo el cursor con las teclas 'd/i/w/s'
 int main() {
   
-  // esto es un resto de la prueba de carga, solo provisional
-  std::string nombre_archivo_actual = return_load_txt(files_in_directory());
+  // Arranca siempre con un documento en blanco.
+  std::string nombre_archivo_actual = "Archivo en blanco.";
   
   std::vector<std::string> lineas;
   
@@ -273,20 +313,14 @@ int main() {
         modificado = false;
 
       } else if (comando == CTRL('l')) {
-        endwin();
-        std::string nueva_eleccion = return_load_txt(files_in_directory());
+        std::string nueva_eleccion = elegir_archivo_ncurses(files_in_directory());
         lineas = load_file(nueva_eleccion);
-        initscr();
-        raw();
-        keypad(stdscr, TRUE);
-        noecho();
         nombre_archivo_actual = nueva_eleccion;
         fila = 0;
         columna = 0;
         modificado = false;
 
-
-      } else if (comando == CTRL('q')) {
+      }  else if (comando == CTRL('q')) {
           if (modificado) {
             dibujar_barra_inferior("¿Quieres guardar los cambios realizados antes de salir? (S/N)");
             refresh();
