@@ -11,6 +11,8 @@
 #define CTRL(x) ((x) & 0x1f)
 
 
+
+
 // FUNCIONES PARA DIBUJAR LAS BARRAS INFERIOR Y SUPERIOR
 // Barra inferior
 void dibujar_barra_inferior(const std::string &texto) {
@@ -200,11 +202,16 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
 
 
 // Main function donde introduzco letras y muevo el cursor con las teclas 'd/i/w/s'
-int main() {
+int main(int argc, char *argv[]) {
   
-  // Arranca siempre con un documento en blanco.
-  std::string nombre_archivo_actual = "Archivo en blanco.";
-  
+  std::string nombre_archivo_actual;
+
+  if (argc > 1) {
+    nombre_archivo_actual = argv[1];
+  } else {
+    nombre_archivo_actual = "Archivo en blanco.";
+  }
+
   std::vector<std::string> lineas;
   
   lineas = load_file(nombre_archivo_actual);

@@ -75,6 +75,10 @@ std::vector<std::string> load_file(std::string name_file) {
           lineas_cargadas.push_back(linea_leida);
       }
 
+      if (lineas_cargadas.empty()) {
+        lineas_cargadas = {""};
+      }
+
     }
 
     return lineas_cargadas;
