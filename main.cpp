@@ -1,4 +1,3 @@
-//#include <iostream>
 #include <string>
 #include <vector>
 #include "archivo_io.h"
@@ -166,20 +165,29 @@ int columna_visual(const std::string &texto, size_t columna_bytes) {
 }
 
 // Funcion con la que muestro todos los textos en pantalla con el cursor.
+// linea_inicio_ventana: desde que linea del documento empezamos a dibujar (para el scroll)
 void show_frases(const std::vector<std::string> &lineas, int fila,
-                 int columna, std::string nombre_archivo, std::string mensaje_estado, bool modificado) {
+                 int columna, std::string nombre_archivo, std::string mensaje_estado,
+                 bool modificado, int linea_inicio_ventana) {
   clear();
   
   std::string name_program = "Write Something Nice";
   std::string texto_barra = name_program + " - " + nombre_archivo;
 
   size_t filas, columnas;
-  
+
+
   if (modificado) {
     texto_barra += " *";
   }
   
   getmaxyx(stdscr, filas, columnas);
+
+  size_t filas_disponibles = filas - 4;
+  
+  // Filas reservadas: 0 (barra superior), 1 (respiro), filas-2 (respiro
+  // inferior, simetrico al de arriba), filas-1 (barra inferior).
+  // El documento puede ocupar desde la fila 2 hasta la fila filas-3 inclusive.
 
   std::string relleno((columnas - texto_barra.length())/2, ' ');
   std::string relleno_2(columnas - texto_barra.length() - relleno.length(), ' ');
@@ -192,12 +200,38 @@ void show_frases(const std::vector<std::string> &lineas, int fila,
   dibujar_barra_inferior(mensaje_estado);
   attroff(A_REVERSE);
 
-  for (size_t i = 0; i < lineas.size(); i++) {
-    mvprintw(i+2, 0, "%s", lineas.at(i).c_str());
+  // Recorremos solo el trozo de "lineas" que cabe en la ventana visible,
+  // empezando en linea_inicio_ventana y sin pasarnos de filas_disponibles.
+  for (size_t i = linea_inicio_ventana;
+       i < lineas.size() && i < linea_inicio_ventana + filas_disponibles;
+       i++) {
+    // i es la posicion dentro del documento (puede ser grande).
+    // (i - linea_inicio_ventana) es cuantas lineas llevamos dibujadas
+    // dentro de la ventana, asi que la fila de pantalla siempre
+    // empieza en 2 y va creciendo de 1 en 1.
+    mvprintw((i - linea_inicio_ventana) + 2, 0, "%s", lineas.at(i).c_str());
   }
 
-  move(fila+2, columna_visual(lineas.at(fila), columna));
+  // El cursor tambien tiene que traducirse de "fila del documento" a
+  // "fila de pantalla", restando linea_inicio_ventana igual que arriba.
+  move((fila - linea_inicio_ventana) + 2, columna_visual(lineas.at(fila), columna));
   refresh();
+}
+
+// Calcula y actualiza linea_inicio_ventana (por referencia) para que la
+// fila del cursor siempre quede dentro de la ventana visible.
+void actualizar_ventana(int fila, int &linea_inicio_ventana) {
+  size_t filas_terminal, columnas_terminal;
+  getmaxyx(stdscr, filas_terminal, columnas_terminal);
+  int filas_disponibles = (int)filas_terminal - 4;
+
+  if (fila < linea_inicio_ventana) {
+      linea_inicio_ventana = fila;
+  }
+
+  if (fila >= linea_inicio_ventana + filas_disponibles) {
+      linea_inicio_ventana = fila - filas_disponibles + 1;
+  }
 }
 
 
@@ -221,6 +255,7 @@ int main(int argc, char *argv[]) {
   
   wint_t comando = ' ';
   int tipo;
+  int linea_inicio_ventana = 0;
 
   bool modificado = false;
 
@@ -229,8 +264,10 @@ int main(int argc, char *argv[]) {
   raw();
   keypad(stdscr, TRUE);
   noecho();
-  
-  show_frases(lineas, fila, columna, nombre_archivo_actual,"", modificado);
+
+  actualizar_ventana(fila, linea_inicio_ventana);
+
+  show_frases(lineas, fila, columna, nombre_archivo_actual, "", modificado, linea_inicio_ventana);
 
   while (comando != CTRL('q')) {
 
@@ -325,6 +362,7 @@ int main(int argc, char *argv[]) {
         nombre_archivo_actual = nueva_eleccion;
         fila = 0;
         columna = 0;
+        linea_inicio_ventana = 0;
         modificado = false;
 
       }  else if (comando == CTRL('q')) {
@@ -358,7 +396,9 @@ int main(int argc, char *argv[]) {
         }
     } 
 
-    show_frases(lineas, fila, columna, nombre_archivo_actual, frase_final, modificado);
+    actualizar_ventana(fila, linea_inicio_ventana);
+
+    show_frases(lineas, fila, columna, nombre_archivo_actual, frase_final, modificado, linea_inicio_ventana);
   }
 
   endwin();
